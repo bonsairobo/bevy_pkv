@@ -10,6 +10,7 @@ compile_error!(
 compile_error!("either the \"rocksdb\", \"redb\" or \"sled\" feature must be enabled on native");
 
 use serde::{de::DeserializeOwned, Serialize};
+use std::sync::Arc;
 
 trait StoreImpl {
     type GetError;
@@ -60,10 +61,10 @@ use redb_store::{self as backend};
 mod path;
 
 /// Main resource for setting/getting values
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 #[cfg_attr(feature = "bevy", derive(bevy_ecs::prelude::Resource))]
 pub struct PkvStore {
-    inner: backend::InnerStore,
+    inner: Arc<backend::InnerStore>,
 }
 
 impl PkvStore {
@@ -102,12 +103,16 @@ impl PkvStore {
     #[cfg(any(sled_backend, rocksdb_backend, redb_backend))]
     pub fn new_in_dir<P: AsRef<std::path::Path>>(path: P) -> Self {
         let inner = backend::InnerStore::new(Location::CustomPath(path.as_ref()));
-        Self { inner }
+        Self {
+            inner: Arc::new(inner),
+        }
     }
 
     fn new_in_location(config: &PlatformDefault) -> Self {
         let inner = backend::InnerStore::new(Location::PlatformDefault(config));
-        Self { inner }
+        Self {
+            inner: Arc::new(inner),
+        }
     }
 
     /// Serialize and store the value
