@@ -60,7 +60,7 @@ impl StoreImpl for LocalStorageStore {
     type GetError = GetError;
     type SetError = SetError;
 
-    fn set_string(&mut self, key: &str, value: &str) -> Result<(), SetError> {
+    fn set_string(&self, key: &str, value: &str) -> Result<(), SetError> {
         let json = serde_json::to_string(value)?;
         let storage = self.storage();
         let key = self.format_key(key);
@@ -77,7 +77,7 @@ impl StoreImpl for LocalStorageStore {
         Ok(value)
     }
 
-    fn set<T: serde::Serialize>(&mut self, key: &str, value: &T) -> Result<(), SetError> {
+    fn set<T: serde::Serialize>(&self, key: &str, value: &T) -> Result<(), SetError> {
         let json = serde_json::to_string(value)?;
         let storage = self.storage();
         let key = self.format_key(key);
@@ -86,7 +86,7 @@ impl StoreImpl for LocalStorageStore {
     }
 
     /// Because the data is cleared by looping through it, it may take time or run slowly
-    fn clear(&mut self) -> Result<(), SetError> {
+    fn clear(&self) -> Result<(), SetError> {
         let storage = self.storage();
         let length = storage.length().map_err(SetError::Clear)?;
         let prefix = &self.prefix;

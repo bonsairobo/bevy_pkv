@@ -76,7 +76,7 @@ impl StoreImpl for ReDbStore {
     type SetError = SetError;
 
     /// Serialize and store the value
-    fn set<T: Serialize>(&mut self, key: &str, value: &T) -> Result<(), Self::SetError> {
+    fn set<T: Serialize>(&self, key: &str, value: &T) -> Result<(), Self::SetError> {
         let mut serializer = rmp_serde::Serializer::new(Vec::new()).with_struct_map();
         value.serialize(&mut serializer)?;
         let write_txn = self.db.begin_write()?;
@@ -90,7 +90,7 @@ impl StoreImpl for ReDbStore {
     }
 
     /// More or less the same as set::<String>, but can take a &str
-    fn set_string(&mut self, key: &str, value: &str) -> Result<(), Self::SetError> {
+    fn set_string(&self, key: &str, value: &str) -> Result<(), Self::SetError> {
         let bytes = rmp_serde::to_vec(value)?;
         let write_txn = self.db.begin_write()?;
         {
@@ -114,7 +114,7 @@ impl StoreImpl for ReDbStore {
     }
 
     /// Clear all keys and their values
-    fn clear(&mut self) -> Result<(), Self::SetError> {
+    fn clear(&self) -> Result<(), Self::SetError> {
         let write_txn = self.db.begin_write()?;
         write_txn.delete_table(TABLE)?;
         write_txn.commit()?;

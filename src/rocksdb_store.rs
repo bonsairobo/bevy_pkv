@@ -51,7 +51,7 @@ impl StoreImpl for RocksDBStore {
     type SetError = SetError;
 
     /// Serialize and store the value
-    fn set<T: Serialize>(&mut self, key: &str, value: &T) -> Result<(), Self::SetError> {
+    fn set<T: Serialize>(&self, key: &str, value: &T) -> Result<(), Self::SetError> {
         let mut serializer = rmp_serde::Serializer::new(Vec::new()).with_struct_map();
         value.serialize(&mut serializer)?;
         self.db.put(key, serializer.into_inner())?;
@@ -60,7 +60,7 @@ impl StoreImpl for RocksDBStore {
     }
 
     /// More or less the same as set::<String>, but can take a &str
-    fn set_string(&mut self, key: &str, value: &str) -> Result<(), Self::SetError> {
+    fn set_string(&self, key: &str, value: &str) -> Result<(), Self::SetError> {
         let bytes = rmp_serde::to_vec(value)?;
         self.db.put(key, bytes)?;
 
@@ -77,7 +77,7 @@ impl StoreImpl for RocksDBStore {
 
     /// Clear all keys and their values
     /// The RocksDB adapter uses an iterator to achieve this, unlike sled
-    fn clear(&mut self) -> Result<(), Self::SetError> {
+    fn clear(&self) -> Result<(), Self::SetError> {
         let kv_iter = self.db.iterator(rocksdb::IteratorMode::Start);
 
         for kv in kv_iter {

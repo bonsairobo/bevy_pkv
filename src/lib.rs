@@ -15,12 +15,12 @@ trait StoreImpl {
     type GetError;
     type SetError;
 
-    fn set_string(&mut self, key: &str, value: &str) -> Result<(), Self::SetError> {
+    fn set_string(&self, key: &str, value: &str) -> Result<(), Self::SetError> {
         self.set(key, &value.to_string())
     }
     fn get<T: DeserializeOwned>(&self, key: &str) -> Result<T, Self::GetError>;
-    fn set<T: Serialize>(&mut self, key: &str, value: &T) -> Result<(), Self::SetError>;
-    fn clear(&mut self) -> Result<(), Self::SetError>;
+    fn set<T: Serialize>(&self, key: &str, value: &T) -> Result<(), Self::SetError>;
+    fn clear(&self) -> Result<(), Self::SetError>;
 }
 
 #[cfg(wasm)]
@@ -111,12 +111,12 @@ impl PkvStore {
     }
 
     /// Serialize and store the value
-    pub fn set<T: Serialize>(&mut self, key: impl AsRef<str>, value: &T) -> Result<(), SetError> {
+    pub fn set<T: Serialize>(&self, key: impl AsRef<str>, value: &T) -> Result<(), SetError> {
         self.inner.set(key.as_ref(), value)
     }
 
     /// More or less the same as set::<String>, but can take a &str
-    pub fn set_string(&mut self, key: impl AsRef<str>, value: &str) -> Result<(), SetError> {
+    pub fn set_string(&self, key: impl AsRef<str>, value: &str) -> Result<(), SetError> {
         self.inner.set_string(key.as_ref(), value)
     }
 
@@ -128,7 +128,7 @@ impl PkvStore {
 
     /// Clear all key values data
     /// returns Err(SetError) if clear error
-    pub fn clear(&mut self) -> Result<(), SetError> {
+    pub fn clear(&self) -> Result<(), SetError> {
         self.inner.clear()
     }
 }
